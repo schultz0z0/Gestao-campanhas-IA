@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import express from "express";
 import { supabase, supabaseAdmin, getAuthUser, db } from "./supabase";
 import { ModelRouter } from "./ai/model-router";
+import { cache } from "./cache";
 import {
   buildSwotPrompt,
   buildPersonaPrompt,
@@ -97,7 +98,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/modalities", requireAuth, async (req, res) => {
     try {
+      const cacheKey = "modalities:all";
+      const cached = cache.get(cacheKey);
+      
+      if (cached) {
+        return res.json(cached);
+      }
+
       const modalities = await db.getModalities();
+      cache.set(cacheKey, modalities);
       res.json(modalities);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
@@ -107,7 +116,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.get("/api/courses", requireAuth, async (req, res) => {
     try {
       const { modalityId } = req.query;
+      const cacheKey = `courses:${modalityId || 'all'}`;
+      const cached = cache.get(cacheKey);
+      
+      if (cached) {
+        return res.json(cached);
+      }
+
       const courses = await db.getCourses(modalityId as string);
+      cache.set(cacheKey, courses);
       res.json(courses);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
@@ -120,7 +137,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/campaigns", requireAuth, async (req: any, res) => {
     try {
+      const cacheKey = `campaigns:${req.user.id}:all`;
+      const cached = cache.get(cacheKey);
+      
+      if (cached) {
+        return res.json(cached);
+      }
+
       const campaigns = await db.getCampaigns(req.user.id);
+      cache.set(cacheKey, campaigns);
       res.json(campaigns);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
@@ -144,6 +169,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
 
       const campaign = await db.createCampaign(validated);
+      cache.invalidate(`campaigns:${req.user.id}:all`);
       res.json(campaign);
     } catch (error: any) {
       res.status(400).json({ error: error.message });
@@ -152,6 +178,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.patch("/api/campaigns/:id", requireAuth, async (req: any, res) => {
     try {
+      cache.invalidate(`campaigns:${req.user.id}:all`);
       const campaign = await db.updateCampaign(
         req.params.id,
         req.user.id,
@@ -165,6 +192,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/campaigns/:id", requireAuth, async (req: any, res) => {
     try {
+      cache.invalidate(`campaigns:${req.user.id}:all`);
       await db.deleteCampaign(req.params.id, req.user.id);
       res.json({ message: "Campaign deleted successfully" });
     } catch (error: any) {

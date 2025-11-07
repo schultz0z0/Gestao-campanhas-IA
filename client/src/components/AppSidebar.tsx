@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { useQueryClient } from "@tanstack/react-query";
 
 const menuItems = [
   {
@@ -50,6 +51,17 @@ interface AppSidebarProps {
 }
 
 export function AppSidebar({ activePath = "/analytics", onNavigate, userEmail = "usuario@ens.com" }: AppSidebarProps) {
+  const queryClient = useQueryClient();
+
+  const handlePrefetch = (url: string) => {
+    if (url === "/campaigns") {
+      queryClient.prefetchQuery({ queryKey: ["/api/campaigns"] });
+    } else if (url === "/offers") {
+      queryClient.prefetchQuery({ queryKey: ["/api/modalities"] });
+      queryClient.prefetchQuery({ queryKey: ["/api/courses"] });
+    }
+  };
+
   return (
     <Sidebar>
       <SidebarContent>
@@ -69,6 +81,7 @@ export function AppSidebar({ activePath = "/analytics", onNavigate, userEmail = 
                     asChild
                     isActive={activePath === item.url}
                     onClick={() => onNavigate?.(item.url)}
+                    onMouseEnter={() => handlePrefetch(item.url)}
                     data-testid={`nav-${item.title.toLowerCase()}`}
                   >
                     <a href={item.url}>

@@ -30,7 +30,7 @@ export default function Campaigns() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [, navigate] = useLocation();
 
-  const { data: campaigns = [], isLoading } = useQuery<any[]>({
+  const { data: campaigns = [], isLoading, isFetching } = useQuery<any[]>({
     queryKey: ["/api/campaigns"],
   });
 
@@ -43,8 +43,23 @@ export default function Campaigns() {
     return matchesSearch && matchesStatus;
   });
 
-  if (isLoading) {
-    return <div className="p-8">Carregando...</div>;
+  if (isLoading && !campaigns.length) {
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="space-y-2">
+            <div className="h-9 w-48 bg-muted animate-pulse rounded"></div>
+            <div className="h-5 w-64 bg-muted animate-pulse rounded"></div>
+          </div>
+          <div className="h-10 w-36 bg-muted animate-pulse rounded"></div>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="h-64 bg-muted animate-pulse rounded-lg"></div>
+          ))}
+        </div>
+      </div>
+    );
   }
 
   return (

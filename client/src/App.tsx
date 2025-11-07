@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { ENSLogo } from "@/components/ENSLogo";
 import { useAuth } from "@/hooks/useAuth";
 import { lazy, Suspense, memo } from "react";
 import { onCLS, onINP, onLCP, onFCP, onTTFB, Metric } from 'web-vitals';
@@ -108,8 +109,11 @@ function MainApp() {
       <div className="flex h-screen w-full">
         <MemoizedAppSidebar activePath={location} userEmail={user?.email} />
         <div className="flex flex-col flex-1 overflow-hidden">
-          <header className="flex items-center justify-between p-4 border-b">
-            <SidebarTrigger data-testid="button-sidebar-toggle" />
+          <header className="flex items-center justify-between p-4 border-b bg-card/50 backdrop-blur-sm">
+            <div className="flex items-center gap-4">
+              <SidebarTrigger data-testid="button-sidebar-toggle" />
+              <ENSLogo width={100} height={32} />
+            </div>
             <ThemeToggle />
           </header>
           <main className="flex-1 overflow-y-auto p-8">

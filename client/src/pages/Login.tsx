@@ -3,10 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Sparkles, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
 import { motion } from "framer-motion";
+import { ENSLogo } from "@/components/ENSLogo";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -37,7 +38,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/10 p-4">
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -45,18 +46,21 @@ export default function Login() {
         className="w-full max-w-md"
       >
         <motion.div 
-          className="flex items-center justify-center gap-2 mb-8"
-          initial={{ scale: 0.8 }}
-          animate={{ scale: 1 }}
+          className="flex flex-col items-center justify-center mb-8"
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
           transition={{ delay: 0.1, type: "spring", stiffness: 200 }}
         >
-          <Sparkles className="h-8 w-8 text-primary animate-pulse" />
-          <h1 className="text-3xl font-semibold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">
-            Marketing AI ENS
-          </h1>
+          <ENSLogo width={180} height={60} className="mb-4" />
+          <h2 className="text-xl font-semibold text-foreground/80">
+            Marketing AI
+          </h2>
+          <p className="text-sm text-muted-foreground mt-1">
+            Plataforma Inteligente de Marketing
+          </p>
         </motion.div>
 
-        <Card className="border-2 shadow-xl">
+        <Card className="glass border-2 border-primary/20 shadow-2xl">
           <CardHeader>
             <CardTitle className="text-2xl">Entrar</CardTitle>
             <CardDescription>

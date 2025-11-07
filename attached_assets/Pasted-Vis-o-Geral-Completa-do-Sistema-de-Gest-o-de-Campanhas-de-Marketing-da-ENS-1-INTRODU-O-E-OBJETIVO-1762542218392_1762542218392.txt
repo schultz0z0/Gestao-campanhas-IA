@@ -1,0 +1,122 @@
+Visão Geral Completa do Sistema de Gestão de Campanhas de Marketing da ENS
+1. INTRODUÇÃO E OBJETIVO DO SISTEMA:
+
+Você é um especialista que precisa compreender e operar um Sistema de Gestão de Campanhas de Marketing desenvolvido para a ENS (Escola de Negócios e Seguros). O sistema visa otimizar o planejamento, execução e análise de campanhas, utilizando inteligência artificial para auxiliar na tomada de decisão e automação de tarefas.
+
+2. ARQUITETURA E TECNOLOGIA CHAVE:
+
+Frontend: React, Tailwind CSS, TypeScript, Shadcn/UI, Lucide React, React Router DOM.
+Backend: Plataforma Base44 (BaaS) para gerenciamento de entidades, autenticação e integrações.
+Integração IA: base44.integrations.Core.InvokeLLM (com OpenAI) para processamento de linguagem natural e geração de conteúdo estruturado (JSON).
+3. MODELO DE DADOS PRINCIPAL (ENTIDADES):
+
+O sistema gerencia as seguintes entidades, que são a base de todas as operações:
+
+Campaign:
+name: Nome da campanha.
+linked_type: Tipo de vínculo (course ou modality).
+course_id / modality_id: Referência ao curso ou modalidade promovida.
+campaign_objective: Objetivo principal (texto livre).
+additional_details: Descrição complementar.
+goals: Sub-entidade com leads, inscritos, matriculados (metas numéricas).
+budget: Orçamento total (numérico).
+start_date / end_date: Período da campanha (formato 'YYYY-MM-DD').
+marker: Marcador único para importação de leads (ex: ENS_2025_01_LANCA_MBA).
+metrics: Sub-entidade com leads_count, inscritos_count, matriculados_count, cost_per_lead, roi, conversion_lead_inscrito, conversion_inscrito_matriculado.
+status: (planejamento, ativa, pausada, concluida).
+personas: Array de Personas associadas (sub-entidade Persona).
+swot_analysis: Sub-entidade de análise SWOT (strengths, weaknesses, opportunities, threats - arrays de strings).
+differentiators_ens: Array de diferenciais da ENS a destacar.
+key_messages: Array de mensagens-chave.
+MarketingAction:
+campaign_id: Referência à campanha pai.
+title, description, objective: Detalhes da ação.
+action_start_date / action_end_date: Período da ação.
+channels: Array de canais (E-mail Marketing, WhatsApp, Google Ads, Meta Ads, LinkedIn, TikTok, Redes Sociais, Blog / SEO, Eventos Online, Parcerias).
+individual_goal, goal_unit: Meta e unidade para esta ação.
+budget: Orçamento da ação.
+status: (planejada, em_andamento, concluida, cancelada).
+results: Métricas de resultados para a ação.
+Course: modality_id, name, about, target_audience, offer_details, enrollment_period (start/end), course_start_date, status (active, inactive).
+Modality: name, description.
+Persona: name, age_range, occupation, demographics, psychographics, pain_points, desires, behaviors, preferred_channels, campaign_id.
+Lead: campaign_id, marker, email, name, phone, status (lead, inscrito, matriculado), source, lead_date, inscrito_date, matriculado_date.
+4. FLUXO DE TRABALHO E FUNCIONALIDADES CHAVE:
+
+4.1. Cadastro e Configuração Inicial:
+
+Página Offers: Gerenciamento de Modalities e Courses.
+Regra: Um Course deve sempre estar vinculado a uma Modality.
+Página Campaigns: Criação e Gestão de Campaigns.
+Regra: Toda Campaign é vinculada a um Course ou Modality existente.
+Regra: Um marker (código único) é gerado automaticamente para cada campanha e é crucial para rastreamento de leads.
+Funcionalidade: Preenchimento manual de todos os campos ou, para novas campanhas, há um assistente de IA que pode sugerir name, objective, goals, budget e duration_days com base no Course/Modality vinculado.
+4.2. Planejamento Estratégico com IA (pages/AIAssistant):
+
+Este módulo concentra as ferramentas de IA, que operam com base em "Prompt Engineering" avançado.
+
+Visão Geral da IA:
+A IA (LLM) é invocada via base44.integrations.Core.InvokeLLM.
+O prompt é construído dinamicamente, incluindo uma "AI Persona" (ex: "especialista em marketing para a ENS").
+A IA recebe um CONTEXTO COMPLETO (geralmente da campanha selecionada) que pode incluir Course/Modality details, Campaign Objective, Budget, Goals, Personas existentes, SWOT Analysis, Differentiators, Key Messages, e MarketingActions já criadas.
+A saída esperada da IA é SEMPRE um objeto JSON, validado por um response_json_schema robusto.
+Ferramentas Específicas de IA:
+PersonaGenerator:
+Entrada: briefing (manual ou preenchido com contexto da campanha).
+Saída: 2-3 Personas detalhadas (JSON).
+Regra: Se a campanha já tem Personas, a IA é instruída a criar Personas COMPLEMENTARES.
+Regra: As personas geradas devem ser específicas para o setor de seguros/educação da ENS.
+SWOTGenerator:
+Entrada: briefing (manual ou preenchido com contexto da campanha).
+Saída: Análise SWOT completa (strengths, weaknesses, opportunities, threats - JSON).
+DifferentiatorsGenerator: (Não detalhado no briefing, mas presente nos arquivos)
+Entrada: Contexto da campanha.
+Saída: Diferenciais competitivos da ENS.
+KeyMessagesGenerator: (Não detalhado no briefing, mas presente nos arquivos)
+Entrada: Contexto da campanha.
+Saída: Mensagens-chave para a campanha.
+CampaignBrainstorm:
+Entrada: Vínculo Course/Modality, Budget Range, Period, Campaign Objective.
+Saída: 3 Campaign Ideas (JSON detalhado, incluindo campaign_name, concept, description, target_channels, key_messages, estimated_duration, goals_suggestion, etc.).
+ActionBrainstorm:
+Entrada: briefing (manual ou preenchido com contexto da campanha), campaign_id opcional.
+Saída: Múltiplas MarketingActions (JSON).
+Lógica Crítica: Usa analyzeExistingActions para entender fases já cobertas e validateAndAdjustActions para garantir que as datas das ações geradas respeitem estritamente o start_date e end_date da campanha. Ações fora do período são ajustadas ou descartadas.
+Regra: Se o período da campanha for CURTO, a IA gera menos ações, focando nas fases críticas. Se LONGO, gera mais.
+StandaloneActions (Gerador de Ações Avulsas) - FOCO DA ÚLTIMA MELHORIA:
+AI Persona: "ESTRATEGISTA DE MARKETING DIGITAL SÊNIOR", com missão CRÍTICA de PRECISÃO.
+Contexto: O briefing do usuário é a ÚNICA FONTE DE VERDADE. O "Contexto ENS" é usado APENAS para linguagem e tom.
+Regras Rígidas de Interpretação:
+Quantidade: Extrair EXATAMENTE a quantidade solicitada ("gere 3 ações" → 3). Se não especificado, padrão de 5 ações.
+Tipos/Canais: Extrair APENAS os tipos/canais especificados ("posts para Instagram" → type: Social Media, channels: Instagram). Se não especificado, variar livremente.
+Não Invenção: NÃO INVENTAR, NÃO PRESUMIR, NÃO INFERIR detalhes não presentes no briefing (datas, orçamentos, metas). Campos não preenchíveis com briefing devem usar genéricos coerentes.
+Formato de Saída: JSON para MarketingAction com campos como title, description, type, channels, objective, target_audience, effort, impact, quick_tips, key_message.
+UX: Alerta com instruções detalhadas sobre como o usuário deve formatar o briefing (quantidade, formato, objetivo, público-alvo) e um placeholder com exemplos.
+4.3. Gestão e Execução de Ações:
+
+Página CampaignDetails: Visão detalhada de uma campanha específica.
+Funcionalidade: Exibe todos os dados da campanha, incluindo Personas, SWOT, Differentiators, Key Messages.
+Funcionalidade: Lista de MarketingActions associadas. Permite Adicionar Ação Manual ou usar AIActionGenerator para criar um plano estratégico.
+Funcionalidade: LeadImport usando o marker da campanha.
+Funcionalidade: MetricsSync para atualização manual de métricas.
+4.4. Análise e Monitoramento (pages/Analytics):
+
+Visão Geral: Dashboard com KPIs, funis de conversão, comparação de campanhas.
+Filtros: Permite filtrar por selectedCampaign e dateRange.
+Aba Visão Geral: Exibe métricas consolidadas (totalLeads, totalInscritos, totalMatriculados, Custo/Matriculado, etc.) e gráficos de funil, status de campanhas e projeções.
+Aba Insights IA:
+Funcionalidade: Um botão Gerar Insights Estratégicos invoca a IA para analisar todos os dados de métricas e campanhas selecionadas.
+Saída da IA: JSON contendo summary (resumo executivo), strengths (pontos fortes), concerns (preocupações), recommendations (recomendações acionáveis), trend_analysis (análise de tendência) e priority_actions (ações imediatas).
+Aba Cronograma (ActionTimeline):
+Visualização: Exibe MarketingActions em um gráfico de Gantt horizontal.
+Funcionalidades: Filtros por status e channel. Modos de visualização Mês ou Semana.
+UX Crítico: Tooltips otimizados para exibir detalhes da ação ao passar o mouse. Garantido para sempre estar visível (z-index, colisão, scroll interno), sem corte.
+Aba Impacto (ActionImpactChart, ActionImpactTable):
+Gráfico de Linha (ActionImpactChart): Evolução de KPIs (Leads, Inscritos, Matriculados) ao longo do tempo, com marcadores verticais indicando as MarketingActions executadas.
+Tabela de Impacto (ActionImpactTable): Calcula o impacto individual de cada MarketingAction com base nos Leads, Inscritos e Matriculados gerados durante o período da ação, incluindo custo por matriculado e taxa de conversão.
+5. CONSIDERAÇÕES FINAIS:
+
+Robustez: O sistema é construído para ser responsivo, escalável e fácil de usar.
+Validação: Validações de dados são implementadas em todas as etapas, desde a entrada do formulário até o processamento da IA e o armazenamento.
+Feedback ao Usuário: Indicadores de carregamento, alertas e mensagens de sucesso/erro são fornecidos em todas as operações de IA e persistência de dados.
+Segurança da IA: Timeouts e tratamento de erros detalhados são implementados para garantir a resiliência das chamadas de IA.

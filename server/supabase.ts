@@ -180,6 +180,38 @@ export const db = {
     return data;
   },
 
+  async createModality(modality: any) {
+    const { data, error } = await supabase
+      .from("modalities")
+      .insert(toSnakeCase(modality))
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async updateModality(id: string, updates: any) {
+    const { data, error } = await supabase
+      .from("modalities")
+      .update(toSnakeCase(updates))
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async deleteModality(id: string) {
+    const { error } = await supabase
+      .from("modalities")
+      .delete()
+      .eq("id", id);
+
+    if (error) throw error;
+  },
+
   // Courses
   async getCourses(modalityId?: string) {
     let query = supabase
@@ -197,6 +229,38 @@ export const db = {
     const { data, error } = await query;
     if (error) throw error;
     return data;
+  },
+
+  async createCourse(course: any) {
+    const { data, error } = await supabase
+      .from("courses")
+      .insert(toSnakeCase(course))
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async updateCourse(id: string, updates: any) {
+    const { data, error} = await supabase
+      .from("courses")
+      .update(toSnakeCase(updates))
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async deleteCourse(id: string) {
+    const { error } = await supabase
+      .from("courses")
+      .delete()
+      .eq("id", id);
+
+    if (error) throw error;
   },
 
   // Personas

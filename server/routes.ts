@@ -14,7 +14,7 @@ import {
   type CampaignContext,
 } from "./ai/prompts";
 import { validateAndAdjustDates, distributeActionsEvenly } from "./ai/validators";
-import { insertCampaignSchema, insertLeadSchema, insertPersonaSchema, insertSwotAnalysisSchema, insertMarketingActionSchema, insertOfferSchema, insertEnrollmentSchema } from "@shared/schema";
+import { insertCampaignSchema, insertLeadSchema, insertPersonaSchema, insertSwotAnalysisSchema, insertMarketingActionSchema, insertOfferSchema, insertEnrollmentSchema, insertModalitySchema, insertCourseSchema } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Middleware for authentication
@@ -113,6 +113,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  app.post("/api/modalities", requireAuth, async (req, res) => {
+    try {
+      const validated = insertModalitySchema.parse(req.body);
+      const modality = await db.createModality(validated);
+      cache.invalidate("modalities:all");
+      res.json(modality);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  app.patch("/api/modalities/:id", requireAuth, async (req, res) => {
+    try {
+      const validated = insertModalitySchema.partial().parse(req.body);
+      const modality = await db.updateModality(req.params.id, validated);
+      cache.invalidate("modalities:all");
+      res.json(modality);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  app.delete("/api/modalities/:id", requireAuth, async (req, res) => {
+    try {
+      await db.deleteModality(req.params.id);
+      cache.invalidate("modalities:all");
+      res.json({ message: "Modality deleted" });
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+
   app.get("/api/courses", requireAuth, async (req, res) => {
     try {
       const { modalityId } = req.query;
@@ -128,6 +160,38 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(courses);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.post("/api/courses", requireAuth, async (req, res) => {
+    try {
+      const validated = insertCourseSchema.parse(req.body);
+      const course = await db.createCourse(validated);
+      cache.invalidate("courses:all");
+      res.json(course);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  app.patch("/api/courses/:id", requireAuth, async (req, res) => {
+    try {
+      const validated = insertCourseSchema.partial().parse(req.body);
+      const course = await db.updateCourse(req.params.id, validated);
+      cache.invalidate("courses:all");
+      res.json(course);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  app.delete("/api/courses/:id", requireAuth, async (req, res) => {
+    try {
+      await db.deleteCourse(req.params.id);
+      cache.invalidate("courses:all");
+      res.json({ message: "Course deleted" });
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
     }
   });
 

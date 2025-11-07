@@ -14,7 +14,7 @@ import {
   type CampaignContext,
 } from "./ai/prompts";
 import { validateAndAdjustDates, distributeActionsEvenly } from "./ai/validators";
-import { insertCampaignSchema, insertLeadSchema, insertPersonaSchema, insertSwotAnalysisSchema, insertMarketingActionSchema } from "@shared/schema";
+import { insertCampaignSchema, insertLeadSchema, insertPersonaSchema, insertSwotAnalysisSchema, insertMarketingActionSchema, insertOfferSchema, insertEnrollmentSchema } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Middleware for authentication
@@ -590,6 +590,149 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(action);
     } catch (error: any) {
       res.status(400).json({ error: error.message });
+    }
+  });
+
+  // ============================================
+  // OFFERS CRUD
+  // ============================================
+
+  app.get("/api/offers", requireAuth, async (req: any, res) => {
+    try {
+      const cacheKey = `offers:${req.user.id}:all`;
+      const cached = cache.get(cacheKey);
+      
+      if (cached) {
+        return res.json(cached);
+      }
+
+      const offers = await db.getOffers(req.user.id);
+      cache.set(cacheKey, offers);
+      res.json(offers);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.get("/api/offers/:id", requireAuth, async (req: any, res) => {
+    try {
+      const offer = await db.getOffer(req.params.id, req.user.id);
+      res.json(offer);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.post("/api/offers", requireAuth, async (req: any, res) => {
+    try {
+      const validated = insertOfferSchema.parse({
+        ...req.body,
+        userId: req.user.id,
+      });
+
+      const offer = await db.createOffer(validated);
+      cache.invalidate(`offers:${req.user.id}:all`);
+      res.json(offer);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  app.patch("/api/offers/:id", requireAuth, async (req: any, res) => {
+    try {
+      cache.invalidate(`offers:${req.user.id}:all`);
+      const offer = await db.updateOffer(
+        req.params.id,
+        req.user.id,
+        req.body
+      );
+      res.json(offer);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  app.delete("/api/offers/:id", requireAuth, async (req: any, res) => {
+    try {
+      cache.invalidate(`offers:${req.user.id}:all`);
+      await db.deleteOffer(req.params.id, req.user.id);
+      res.json({ message: "Offer deleted successfully" });
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  // ============================================
+  // ENROLLMENTS
+  // ============================================
+
+  app.get("/api/campaigns/:campaignId/enrollments", requireAuth, async (req: any, res) => {
+    try {
+      const enrollments = await db.getEnrollments(req.params.campaignId);
+      res.json(enrollments);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  app.post("/api/enrollments", requireAuth, async (req: any, res) => {
+    try {
+      const validated = insertEnrollmentSchema.parse(req.body);
+      const enrollment = await db.createEnrollment(validated);
+      res.json(enrollment);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  app.patch("/api/enrollments/:id", requireAuth, async (req: any, res) => {
+    try {
+      const enrollment = await db.updateEnrollment(req.params.id, req.body);
+      res.json(enrollment);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+
+  // ============================================
+  // ANALYTICS
+  // ============================================
+
+  app.get("/api/analytics", requireAuth, async (req: any, res) => {
+    try {
+      const { campaignId, startDate, endDate, period } = req.query;
+      
+      let start: Date | undefined;
+      let end: Date | undefined;
+
+      if (period) {
+        end = new Date();
+        start = new Date();
+        const days = parseInt(period);
+        start.setDate(end.getDate() - days);
+      } else {
+        if (startDate) start = new Date(startDate);
+        if (endDate) end = new Date(endDate);
+      }
+
+      const cacheKey = `analytics:${req.user.id}:${campaignId || 'all'}:${period || 'custom'}`;
+      const cached = cache.get(cacheKey);
+      
+      if (cached) {
+        return res.json(cached);
+      }
+
+      const analytics = await db.getAnalytics(
+        req.user.id,
+        campaignId,
+        start,
+        end
+      );
+      
+      cache.set(cacheKey, analytics, 300);
+      res.json(analytics);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
     }
   });
 

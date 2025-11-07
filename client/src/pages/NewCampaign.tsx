@@ -30,6 +30,7 @@ import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 
 const campaignSchema = z.object({
   name: z.string().min(3, "Nome deve ter no mínimo 3 caracteres"),
+  modalityId: z.string().min(1, "Selecione uma modalidade"),
   courseId: z.string().min(1, "Selecione um curso"),
   startDate: z.string().min(1, "Data de início é obrigatória"),
   endDate: z.string().min(1, "Data de término é obrigatória"),
@@ -57,22 +58,23 @@ export default function NewCampaign() {
     queryKey: ["/api/modalities"],
   });
 
-  // Fetch courses based on selected modality
-  const [selectedModalityId, setSelectedModalityId] = useState<string>("");
-  const { data: courses } = useQuery<any[]>({
-    queryKey: ["/api/courses", selectedModalityId],
-    enabled: !!selectedModalityId,
-  });
-
   const form = useForm<CampaignFormData>({
     resolver: zodResolver(campaignSchema),
     defaultValues: {
       name: "",
+      modalityId: "",
       courseId: "",
       startDate: "",
       endDate: "",
       status: "draft",
     },
+  });
+
+  // Fetch courses based on selected modality (watch form field)
+  const selectedModalityId = form.watch("modalityId");
+  const { data: courses } = useQuery<any[]>({
+    queryKey: ["/api/courses", selectedModalityId],
+    enabled: !!selectedModalityId,
   });
 
   const createCampaignMutation = useMutation({
@@ -116,7 +118,7 @@ export default function NewCampaign() {
   const getStepFields = (step: number): any[] => {
     switch (step) {
       case 1:
-        return ["name", "courseId"];
+        return ["name", "modalityId", "courseId"];
       case 2:
         return ["startDate", "endDate", "leadsGoal"];
       case 3:
@@ -208,24 +210,36 @@ export default function NewCampaign() {
                     )}
                   />
 
-                  <div className="space-y-2">
-                    <Label>Modalidade</Label>
-                    <Select
-                      value={selectedModalityId}
-                      onValueChange={setSelectedModalityId}
-                    >
-                      <SelectTrigger data-testid="select-modality">
-                        <SelectValue placeholder="Selecione a modalidade" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {modalities?.map((modality) => (
-                          <SelectItem key={modality.id} value={modality.id}>
-                            {modality.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
+                  <FormField
+                    control={form.control}
+                    name="modalityId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Modalidade</FormLabel>
+                        <FormControl>
+                          <Select
+                            value={field.value}
+                            onValueChange={(value) => {
+                              field.onChange(value);
+                              form.setValue("courseId", "", { shouldValidate: true });
+                            }}
+                          >
+                            <SelectTrigger data-testid="select-modality">
+                              <SelectValue placeholder="Selecione a modalidade" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {modalities?.map((modality) => (
+                                <SelectItem key={modality.id} value={modality.id}>
+                                  {modality.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
                   <FormField
                     control={form.control}

@@ -156,9 +156,12 @@ export const leads = pgTable("leads", {
   name: text("name").notNull(),
   email: text("email").notNull(),
   phone: text("phone"),
-  status: text("status").notNull().default("new"), // new, qualified, converted, lost
+  status: text("status").notNull().default("new"), // new, qualified, enrolled, matriculated, lost
+  stage: text("stage").notNull().default("lead"), // lead, inscrito, matriculado
   source: text("source"),
   notes: text("notes"),
+  enrolledAt: timestamp("enrolled_at"),
+  matriculatedAt: timestamp("matriculated_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -171,3 +174,58 @@ export const insertLeadSchema = createInsertSchema(leads).omit({
 
 export type InsertLead = z.infer<typeof insertLeadSchema>;
 export type Lead = typeof leads.$inferSelect;
+
+// Offers Table (Ofertas de Desconto)
+export const offers = pgTable("offers", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: uuid("user_id").notNull(),
+  name: text("name").notNull(),
+  description: text("description"),
+  discountType: text("discount_type").notNull(), // percentage, fixed
+  discountValue: decimal("discount_value", { precision: 10, scale: 2 }).notNull(),
+  courseId: uuid("course_id").references(() => courses.id, { onDelete: "set null" }),
+  validFrom: timestamp("valid_from").notNull(),
+  validUntil: timestamp("valid_until").notNull(),
+  isActive: boolean("is_active").notNull().default(true),
+  maxRedemptions: integer("max_redemptions"),
+  currentRedemptions: integer("current_redemptions").notNull().default(0),
+  code: text("code").unique(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const insertOfferSchema = createInsertSchema(offers).omit({
+  id: true,
+  currentRedemptions: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertOffer = z.infer<typeof insertOfferSchema>;
+export type Offer = typeof offers.$inferSelect;
+
+// Enrollments Table (Matrículas)
+export const enrollments = pgTable("enrollments", {
+  id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
+  campaignId: uuid("campaign_id").notNull().references(() => campaigns.id, { onDelete: "cascade" }),
+  leadId: uuid("lead_id").notNull().references(() => leads.id, { onDelete: "cascade" }),
+  courseId: uuid("course_id").notNull().references(() => courses.id, { onDelete: "cascade" }),
+  offerId: uuid("offer_id").references(() => offers.id, { onDelete: "set null" }),
+  status: text("status").notNull().default("enrolled"), // enrolled, active, completed, dropped
+  enrolledAt: timestamp("enrolled_at").defaultNow().notNull(),
+  startedAt: timestamp("started_at"),
+  completedAt: timestamp("completed_at"),
+  paidAmount: decimal("paid_amount", { precision: 10, scale: 2 }),
+  paymentStatus: text("payment_status").notNull().default("pending"), // pending, paid, refunded
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const insertEnrollmentSchema = createInsertSchema(enrollments).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export type InsertEnrollment = z.infer<typeof insertEnrollmentSchema>;
+export type Enrollment = typeof enrollments.$inferSelect;

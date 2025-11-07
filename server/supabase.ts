@@ -8,6 +8,19 @@ if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error("Missing Supabase environment variables");
 }
 
+function toSnakeCase(obj: any): any {
+  if (obj === null || obj === undefined) return obj;
+  if (Array.isArray(obj)) return obj.map(toSnakeCase);
+  if (typeof obj !== 'object') return obj;
+
+  const result: any = {};
+  for (const [key, value] of Object.entries(obj)) {
+    const snakeKey = key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
+    result[snakeKey] = typeof value === 'object' && value !== null ? toSnakeCase(value) : value;
+  }
+  return result;
+}
+
 // Client for RLS-protected operations (uses user auth context)
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
@@ -89,7 +102,7 @@ export const db = {
   async createCampaign(campaign: any) {
     const { data, error } = await supabase
       .from("campaigns")
-      .insert(campaign)
+      .insert(toSnakeCase(campaign))
       .select()
       .single();
 
@@ -100,7 +113,7 @@ export const db = {
   async updateCampaign(id: string, userId: string, updates: any) {
     const { data, error } = await supabase
       .from("campaigns")
-      .update(updates)
+      .update(toSnakeCase(updates))
       .eq("id", id)
       .eq("user_id", userId)
       .select()
@@ -154,7 +167,7 @@ export const db = {
   async createPersona(persona: any) {
     const { data, error } = await supabase
       .from("personas")
-      .insert(persona)
+      .insert(toSnakeCase(persona))
       .select()
       .single();
 
@@ -177,7 +190,7 @@ export const db = {
   async createSwotAnalysis(swot: any) {
     const { data, error } = await supabase
       .from("swot_analyses")
-      .insert(swot)
+      .insert(toSnakeCase(swot))
       .select()
       .single();
 
@@ -200,7 +213,7 @@ export const db = {
   async createMarketingAction(action: any) {
     const { data, error } = await supabase
       .from("marketing_actions")
-      .insert(action)
+      .insert(toSnakeCase(action))
       .select()
       .single();
 
@@ -222,7 +235,7 @@ export const db = {
   async updateMarketingAction(id: string, updates: any) {
     const { data, error } = await supabase
       .from("marketing_actions")
-      .update(updates)
+      .update(toSnakeCase(updates))
       .eq("id", id)
       .select()
       .single();
@@ -235,7 +248,7 @@ export const db = {
   async createLead(lead: any) {
     const { data, error } = await supabase
       .from("leads")
-      .insert(lead)
+      .insert(toSnakeCase(lead))
       .select()
       .single();
 
@@ -255,14 +268,210 @@ export const db = {
   },
 
   async updateLead(id: string, updates: any) {
-    const { data, error } = await supabase
+    const { data, error} = await supabase
       .from("leads")
-      .update(updates)
+      .update(toSnakeCase(updates))
       .eq("id", id)
       .select()
       .single();
 
     if (error) throw error;
     return data;
+  },
+
+  // Offers
+  async getOffers(userId: string) {
+    const { data, error } = await supabase
+      .from("offers")
+      .select(`
+        *,
+        course:courses(id, name)
+      `)
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+    return data;
+  },
+
+  async getOffer(id: string, userId: string) {
+    const { data, error } = await supabase
+      .from("offers")
+      .select(`
+        *,
+        course:courses(id, name)
+      `)
+      .eq("id", id)
+      .eq("user_id", userId)
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async createOffer(offer: any) {
+    const { data, error } = await supabase
+      .from("offers")
+      .insert(toSnakeCase(offer))
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async updateOffer(id: string, userId: string, updates: any) {
+    const { data, error } = await supabase
+      .from("offers")
+      .update(toSnakeCase(updates))
+      .eq("id", id)
+      .eq("user_id", userId)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async deleteOffer(id: string, userId: string) {
+    const { error } = await supabase
+      .from("offers")
+      .delete()
+      .eq("id", id)
+      .eq("user_id", userId);
+
+    if (error) throw error;
+  },
+
+  // Enrollments
+  async getEnrollments(campaignId: string) {
+    const { data, error } = await supabase
+      .from("enrollments")
+      .select(`
+        *,
+        lead:leads(id, name, email),
+        course:courses(id, name),
+        offer:offers(id, name)
+      `)
+      .eq("campaign_id", campaignId)
+      .order("enrolled_at", { ascending: false });
+
+    if (error) throw error;
+    return data;
+  },
+
+  async createEnrollment(enrollment: any) {
+    const { data, error } = await supabase
+      .from("enrollments")
+      .insert(toSnakeCase(enrollment))
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  async updateEnrollment(id: string, updates: any) {
+    const { data, error } = await supabase
+      .from("enrollments")
+      .update(toSnakeCase(updates))
+      .eq("id", id)
+      .select()
+      .single();
+
+    if (error) throw error;
+    return data;
+  },
+
+  // Analytics & Metrics
+  async getAnalytics(userId: string, campaignId?: string, startDate?: Date, endDate?: Date) {
+    let leadsQuery = supabase
+      .from("leads")
+      .select("*, campaign:campaigns!inner(user_id)")
+      .eq("campaigns.user_id", userId);
+
+    if (campaignId) {
+      leadsQuery = leadsQuery.eq("campaign_id", campaignId);
+    }
+
+    if (startDate) {
+      leadsQuery = leadsQuery.gte("created_at", startDate.toISOString());
+    }
+
+    if (endDate) {
+      leadsQuery = leadsQuery.lte("created_at", endDate.toISOString());
+    }
+
+    const { data: leads, error: leadsError } = await leadsQuery;
+    if (leadsError) throw leadsError;
+
+    let enrollmentsQuery = supabase
+      .from("enrollments")
+      .select("*, campaign:campaigns!inner(user_id)")
+      .eq("campaigns.user_id", userId);
+
+    if (campaignId) {
+      enrollmentsQuery = enrollmentsQuery.eq("campaign_id", campaignId);
+    }
+
+    if (startDate) {
+      enrollmentsQuery = enrollmentsQuery.gte("enrolled_at", startDate.toISOString());
+    }
+
+    if (endDate) {
+      enrollmentsQuery = enrollmentsQuery.lte("enrolled_at", endDate.toISOString());
+    }
+
+    const { data: enrollments, error: enrollmentsError } = await enrollmentsQuery;
+    if (enrollmentsError) throw enrollmentsError;
+
+    let campaignsQuery = supabase
+      .from("campaigns")
+      .select("*")
+      .eq("user_id", userId);
+
+    if (campaignId) {
+      campaignsQuery = campaignsQuery.eq("id", campaignId);
+    }
+
+    const { data: campaigns, error: campaignsError } = await campaignsQuery;
+    if (campaignsError) throw campaignsError;
+
+    const totalLeads = leads?.length || 0;
+    const inscritos = leads?.filter(l => l.stage === "inscrito" || l.enrolled_at).length || 0;
+    const matriculados = enrollments?.filter(e => e.payment_status === "paid").length || 0;
+    
+    const convLeadToInscrito = totalLeads > 0 ? (inscritos / totalLeads) * 100 : 0;
+    const convInscritoToMatriculado = inscritos > 0 ? (matriculados / inscritos) * 100 : 0;
+    const convLeadToMatriculado = totalLeads > 0 ? (matriculados / totalLeads) * 100 : 0;
+
+    const totalBudget = campaigns?.reduce((sum, c) => sum + (parseFloat(c.budget || "0")), 0) || 0;
+    const totalRevenue = enrollments?.reduce((sum, e) => sum + (parseFloat(e.paid_amount || "0")), 0) || 0;
+    const custoPerMatricula = matriculados > 0 ? totalBudget / matriculados : 0;
+    const roi = totalBudget > 0 ? ((totalRevenue - totalBudget) / totalBudget) * 100 : 0;
+
+    const activeCampaigns = campaigns?.filter(c => c.status === "active").length || 0;
+    const draftCampaigns = campaigns?.filter(c => c.status === "draft").length || 0;
+    const completedCampaigns = campaigns?.filter(c => c.status === "completed").length || 0;
+
+    return {
+      totalLeads,
+      inscritos,
+      matriculados,
+      convLeadToInscrito: Number(convLeadToInscrito.toFixed(1)),
+      convInscritoToMatriculado: Number(convInscritoToMatriculado.toFixed(1)),
+      convLeadToMatriculado: Number(convLeadToMatriculado.toFixed(1)),
+      totalBudget: Number(totalBudget.toFixed(2)),
+      totalRevenue: Number(totalRevenue.toFixed(2)),
+      custoPerMatricula: Number(custoPerMatricula.toFixed(2)),
+      roi: Number(roi.toFixed(1)),
+      totalCampaigns: campaigns?.length || 0,
+      activeCampaigns,
+      draftCampaigns,
+      completedCampaigns,
+      campaigns: campaigns || [],
+      leads: leads || [],
+      enrollments: enrollments || [],
+    };
   },
 };

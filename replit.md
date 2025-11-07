@@ -104,21 +104,19 @@ Tabelas principais:
 
 ## Variáveis de Ambiente
 
+As seguintes variáveis de ambiente são necessárias e devem ser configuradas nos Secrets do Replit:
+
 ```
-OPENAI_API_KEY - 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
-
-GEMINI_API_KEY - AIzaSyBQpWNrG1dkG0Mt9cMhIeMvZgqplyV_Ldg
-
-SUPABASE_URL - https://xazsyivwarckaqzwlook.supabase.co
-
-SUPABASE_ANON_KEY - eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhhenN5aXZ3YXJja2Fxendsb29rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MTY5OTEsImV4cCI6MjA3ODA5Mjk5MX0.9casWczz7A6xlyt86QIqEM0rv1arXmAagK5SrOdDwpo
-
-VITE_SUPABASE_URL - https://xazsyivwarckaqzwlook.supabase.co
-
-VITE_SUPABASE_ANON_KEY - eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhhenN5aXZ3YXJja2Fxendsb29rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MTY5OTEsImV4cCI6MjA3ODA5Mjk5MX0.9casWczz7A6xlyt86QIqEM0rv1arXmAagK5SrOdDwpo
-
-SUPABASE_SERVICE_ROLE_KEY - eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhhenN5aXZ3YXJja2Fxendsb29rIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MjUxNjk5MSwiZXhwIjoyMDc4MDkyOTkxfQ.sCi7lqcupGfxFYA74X80sZUL2veoQn42rN-iBiC1nIY
+OPENAI_API_KEY - Chave de API da OpenAI
+GEMINI_API_KEY - Chave de API do Google Gemini
+SUPABASE_URL - URL do projeto Supabase
+SUPABASE_ANON_KEY - Chave anônima do Supabase
+VITE_SUPABASE_URL - URL do Supabase para o cliente (mesma que SUPABASE_URL)
+VITE_SUPABASE_ANON_KEY - Chave anônima para o cliente (mesma que SUPABASE_ANON_KEY)
+SUPABASE_SERVICE_ROLE_KEY - Chave de service role do Supabase (apenas backend)
 ```
+
+**Nota de Segurança**: Todas as chaves de API devem ser armazenadas como Secrets no Replit e nunca commitadas no código.
 
 ## Estado do Projeto
 

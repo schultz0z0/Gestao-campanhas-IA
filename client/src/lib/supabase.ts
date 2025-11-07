@@ -50,6 +50,29 @@ export const authHelpers = {
     });
 
     if (error) throw error;
+
+    // Check if profile exists, create if not
+    if (data.user) {
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("id")
+        .eq("id", data.user.id)
+        .maybeSingle();
+
+      if (!profile && !profileError) {
+        // Profile doesn't exist, create it
+        const { error: insertError } = await supabase.from("profiles").insert({
+          id: data.user.id,
+          email: data.user.email!,
+          full_name: data.user.user_metadata?.full_name || null,
+        });
+
+        if (insertError) {
+          console.error("Error creating profile on login:", insertError);
+        }
+      }
+    }
+
     return data;
   },
 

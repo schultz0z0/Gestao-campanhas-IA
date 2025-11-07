@@ -105,13 +105,19 @@ Tabelas principais:
 ## Variáveis de Ambiente
 
 ```
-OPENAI_API_KEY - Chave da API OpenAI
-GEMINI_API_KEY - Chave da API Google Gemini
-SUPABASE_URL - URL do projeto Supabase
-SUPABASE_ANON_KEY - Chave pública do Supabase
+OPENAI_API_KEY - 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
 
-VITE_SUPABASE_URL - URL do Supabase (frontend)
-VITE_SUPABASE_ANON_KEY - Chave do Supabase (frontend)
+GEMINI_API_KEY - AIzaSyBQpWNrG1dkG0Mt9cMhIeMvZgqplyV_Ldg
+
+SUPABASE_URL - https://xazsyivwarckaqzwlook.supabase.co
+
+SUPABASE_ANON_KEY - eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhhenN5aXZ3YXJja2Fxendsb29rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MTY5OTEsImV4cCI6MjA3ODA5Mjk5MX0.9casWczz7A6xlyt86QIqEM0rv1arXmAagK5SrOdDwpo
+
+VITE_SUPABASE_URL - https://xazsyivwarckaqzwlook.supabase.co
+
+VITE_SUPABASE_ANON_KEY - eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhhenN5aXZ3YXJja2Fxendsb29rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI1MTY5OTEsImV4cCI6MjA3ODA5Mjk5MX0.9casWczz7A6xlyt86QIqEM0rv1arXmAagK5SrOdDwpo
+
+SUPABASE_SERVICE_ROLE_KEY - eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhhenN5aXZ3YXJja2Fxendsb29rIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc2MjUxNjk5MSwiZXhwIjoyMDc4MDkyOTkxfQ.sCi7lqcupGfxFYA74X80sZUL2veoQn42rN-iBiC1nIY
 ```
 
 ## Estado do Projeto

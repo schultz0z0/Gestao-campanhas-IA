@@ -43,8 +43,14 @@ export const courses = pgTable("courses", {
   modalityId: uuid("modality_id").notNull().references(() => modalities.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
   description: text("description"),
+  about: text("about"),
+  targetAudience: text("target_audience"),
+  offerDetails: text("offer_details"),
   price: decimal("price", { precision: 10, scale: 2 }),
   duration: text("duration"),
+  enrollmentPeriod: jsonb("enrollment_period"),
+  courseStartDate: timestamp("course_start_date"),
+  status: text("status").notNull().default("active"), // active, inactive
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -60,20 +66,28 @@ export type Course = typeof courses.$inferSelect;
 export const campaigns = pgTable("campaigns", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
   userId: uuid("user_id").notNull(),
-  courseId: uuid("course_id").notNull().references(() => courses.id, { onDelete: "cascade" }),
+  linkedType: text("linked_type").notNull(), // 'course' or 'modality'
+  courseId: uuid("course_id").references(() => courses.id, { onDelete: "cascade" }),
+  modalityId: uuid("modality_id").references(() => modalities.id, { onDelete: "cascade" }),
   name: text("name").notNull(),
-  status: text("status").notNull().default("draft"), // draft, active, scheduled, completed
+  marker: text("marker").notNull().unique(),
+  campaignObjective: text("campaign_objective"),
+  additionalDetails: text("additional_details"),
+  status: text("status").notNull().default("planejamento"), // planejamento, ativa, pausada, concluida
   startDate: timestamp("start_date").notNull(),
   endDate: timestamp("end_date").notNull(),
-  leadsGoal: integer("leads_goal"),
+  goals: jsonb("goals"),
+  metrics: jsonb("metrics"),
   budget: decimal("budget", { precision: 10, scale: 2 }),
-  messaging: text("messaging"),
+  differentiatorsEns: text("differentiators_ens").array(),
+  keyMessages: text("key_messages").array(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
 export const insertCampaignSchema = createInsertSchema(campaigns).omit({
   id: true,
+  marker: true,
   createdAt: true,
   updatedAt: true,
 });
@@ -130,12 +144,17 @@ export const marketingActions = pgTable("marketing_actions", {
   campaignId: uuid("campaign_id").notNull().references(() => campaigns.id, { onDelete: "cascade" }),
   title: text("title").notNull(),
   description: text("description"),
-  type: text("type").notNull(), // email, social, content, event, ad, etc
-  channel: text("channel"),
+  objective: text("objective"),
+  type: text("type").notNull(),
+  channels: text("channels").array(),
+  actionStartDate: timestamp("action_start_date"),
+  actionEndDate: timestamp("action_end_date"),
   scheduledDate: timestamp("scheduled_date"),
-  status: text("status").notNull().default("pending"), // pending, in_progress, completed, cancelled
+  status: text("status").notNull().default("planejada"), // planejada, em_andamento, concluida, cancelada
   budget: decimal("budget", { precision: 10, scale: 2 }),
-  expectedResults: text("expected_results"),
+  individualGoal: integer("individual_goal"),
+  goalUnit: text("goal_unit"),
+  results: jsonb("results"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -153,13 +172,17 @@ export type MarketingAction = typeof marketingActions.$inferSelect;
 export const leads = pgTable("leads", {
   id: uuid("id").primaryKey().default(sql`gen_random_uuid()`),
   campaignId: uuid("campaign_id").notNull().references(() => campaigns.id, { onDelete: "cascade" }),
+  marker: text("marker"),
   name: text("name").notNull(),
   email: text("email").notNull(),
   phone: text("phone"),
-  status: text("status").notNull().default("new"), // new, qualified, enrolled, matriculated, lost
+  status: text("status").notNull().default("new"),
   stage: text("stage").notNull().default("lead"), // lead, inscrito, matriculado
   source: text("source"),
   notes: text("notes"),
+  leadDate: timestamp("lead_date").defaultNow(),
+  inscritoDate: timestamp("inscrito_date"),
+  matriculadoDate: timestamp("matriculado_date"),
   enrolledAt: timestamp("enrolled_at"),
   matriculatedAt: timestamp("matriculated_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),

@@ -21,6 +21,37 @@ function toSnakeCase(obj: any): any {
   return result;
 }
 
+export function generateMarker(prefix: string = "ENS"): string {
+  const timestamp = Date.now();
+  const random = Math.random().toString(36).substring(2, 10);
+  return `${prefix}_${timestamp}_${random}`;
+}
+
+export function calculateMetrics(leads: any[], enrollments: any[], totalBudget: number = 0) {
+  const leadsCount = leads?.length || 0;
+  const inscritosCount = leads?.filter(l => l.stage === "inscrito" || l.inscrito_date).length || 0;
+  const matriculadosCount = enrollments?.filter(e => e.payment_status === "paid").length || 0;
+  
+  const convLeadToInscrito = leadsCount > 0 ? (inscritosCount / leadsCount) * 100 : 0;
+  const convInscritoToMatriculado = inscritosCount > 0 ? (matriculadosCount / inscritosCount) * 100 : 0;
+  const convLeadToMatriculado = leadsCount > 0 ? (matriculadosCount / leadsCount) * 100 : 0;
+  const costPerLead = leadsCount > 0 ? totalBudget / leadsCount : 0;
+  
+  const totalRevenue = enrollments?.reduce((sum, e) => sum + (parseFloat(e.paid_amount || "0")), 0) || 0;
+  const roi = totalBudget > 0 ? ((totalRevenue - totalBudget) / totalBudget) * 100 : 0;
+
+  return {
+    leads_count: leadsCount,
+    inscritos_count: inscritosCount,
+    matriculados_count: matriculadosCount,
+    conversion_lead_inscrito: Number(convLeadToInscrito.toFixed(1)),
+    conversion_inscrito_matriculado: Number(convInscritoToMatriculado.toFixed(1)),
+    conversion_lead_matriculado: Number(convLeadToMatriculado.toFixed(1)),
+    cost_per_lead: Number(costPerLead.toFixed(2)),
+    roi: Number(roi.toFixed(1)),
+  };
+}
+
 // Client for RLS-protected operations (uses user auth context)
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
@@ -100,9 +131,14 @@ export const db = {
   },
 
   async createCampaign(campaign: any) {
+    const campaignWithMarker = {
+      ...campaign,
+      marker: generateMarker("ENS"),
+    };
+    
     const { data, error } = await supabase
       .from("campaigns")
-      .insert(toSnakeCase(campaign))
+      .insert(toSnakeCase(campaignWithMarker))
       .select()
       .single();
 
@@ -450,9 +486,10 @@ export const db = {
     const custoPerMatricula = matriculados > 0 ? totalBudget / matriculados : 0;
     const roi = totalBudget > 0 ? ((totalRevenue - totalBudget) / totalBudget) * 100 : 0;
 
-    const activeCampaigns = campaigns?.filter(c => c.status === "active").length || 0;
-    const draftCampaigns = campaigns?.filter(c => c.status === "draft").length || 0;
-    const completedCampaigns = campaigns?.filter(c => c.status === "completed").length || 0;
+    const activeCampaigns = campaigns?.filter(c => c.status === "ativa").length || 0;
+    const draftCampaigns = campaigns?.filter(c => c.status === "planejamento").length || 0;
+    const completedCampaigns = campaigns?.filter(c => c.status === "concluida").length || 0;
+    const pausedCampaigns = campaigns?.filter(c => c.status === "pausada").length || 0;
 
     return {
       totalLeads,
@@ -468,6 +505,7 @@ export const db = {
       totalCampaigns: campaigns?.length || 0,
       activeCampaigns,
       draftCampaigns,
+      pausedCampaigns,
       completedCampaigns,
       campaigns: campaigns || [],
       leads: leads || [],

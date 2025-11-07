@@ -6,7 +6,7 @@ export default function CampaignCardExample() {
       <CampaignCard
         id="1"
         title="Campanha de Verão 2025"
-        status="active"
+        status="ativa"
         startDate={new Date(2025, 0, 1)}
         endDate={new Date(2025, 2, 31)}
         leadsCount={452}
@@ -20,7 +20,7 @@ export default function CampaignCardExample() {
       <CampaignCard
         id="2"
         title="Lançamento Novo Curso"
-        status="scheduled"
+        status="planejamento"
         startDate={new Date(2025, 3, 1)}
         endDate={new Date(2025, 5, 30)}
         leadsCount={0}

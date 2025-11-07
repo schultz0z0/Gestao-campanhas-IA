@@ -163,6 +163,10 @@ export class ModelRouter {
 
     const text = result.text;
 
+    if (!text) {
+      throw new Error("No content in Gemini response");
+    }
+
     // Clean up markdown code blocks if present
     let jsonText = text.trim();
     if (jsonText.startsWith("```json")) {
@@ -185,7 +189,7 @@ export class ModelRouter {
     config: AIConfig,
     systemPrompt: string,
     userPrompt: string
-  ): AsyncGenerator<string> {
+  ): Promise<AsyncGenerator<string>> {
     const modelConfig = MODEL_CONFIG[config.complexity];
 
     if (modelConfig.provider === "openai") {

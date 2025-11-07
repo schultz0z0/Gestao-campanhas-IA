@@ -14,17 +14,24 @@
   --elevate-1: rgba(0,0,0, .03);
   --elevate-2: rgba(0,0,0, .08);
 
+  /* ENS Brand Colors */
+  --ens-primary: 180 100% 43%;        /* #00D9D7 - Azul institucional ENS */
+  --ens-primary-dark: 180 100% 35%;   /* #00B5B3 - Hover state */
+  --ens-secondary: 199 100% 30%;      /* #006699 - MBA azul */
+  --ens-accent: 14 100% 56%;          /* #FF5722 - Graduação laranja */
+  --ens-success: 174 100% 29%;        /* #009688 - CHCS verde */
+
   --background: 0 0% 100%;
 
   --foreground: 224 10% 10%;
 
   --border: 220 13% 91%;
 
-  --card: 220 14% 96%;
+  --card: 0 0% 100%;
 
   --card-foreground: 224 10% 10%;
 
-  --card-border: 220 13% 91%;
+  --card-border: 180 20% 88%;
 
   --sidebar: 220 13% 93%;
 
@@ -32,7 +39,7 @@
 
   --sidebar-border: 220 13% 88%;
 
-  --sidebar-primary: 221 83% 53%;
+  --sidebar-primary: 180 100% 43%;
 
   --sidebar-primary-foreground: 210 40% 98%;
 
@@ -40,7 +47,7 @@
 
   --sidebar-accent-foreground: 224 10% 10%;
 
-  --sidebar-ring: 221 83% 53%;
+  --sidebar-ring: 180 100% 43%;
 
   --popover: 220 14% 94%;
 
@@ -48,7 +55,7 @@
 
   --popover-border: 220 13% 89%;
 
-  --primary: 221 83% 53%;
+  --primary: 180 100% 43%;
 
   --primary-foreground: 210 40% 98%;
 
@@ -60,7 +67,7 @@
 
   --muted-foreground: 220 9% 46%;
 
-  --accent: 220 14% 89%;
+  --accent: 14 100% 56%;
 
   --accent-foreground: 224 10% 10%;
 
@@ -69,16 +76,16 @@
   --destructive-foreground: 210 40% 98%;
 
   --input: 220 13% 80%;
-  --ring: 221 83% 53%;
-  --chart-1: 221 83% 53%;
-  --chart-2: 262 83% 58%;
-  --chart-3: 291 64% 42%;
-  --chart-4: 173 58% 39%;
+  --ring: 180 100% 43%;
+  --chart-1: 180 100% 43%;
+  --chart-2: 199 100% 30%;
+  --chart-3: 14 100% 56%;
+  --chart-4: 174 100% 29%;
   --chart-5: 43 74% 49%;
 
-  --font-sans: Inter, system-ui, -apple-system, sans-serif;
+  --font-sans: 'Outfit', system-ui, -apple-system, sans-serif;
   --font-serif: Georgia, serif;
-  --font-mono: JetBrains Mono, Menlo, monospace;
+  --font-mono: 'JetBrains Mono', Menlo, monospace;
   --radius: .5rem;
   --shadow-2xs: 0px 1px 2px 0px hsl(220 13% 10% / 0.02);
   --shadow-xs: 0px 1px 2px 0px hsl(220 13% 10% / 0.05);
@@ -132,6 +139,13 @@
   --elevate-1: rgba(255,255,255, .04);
   --elevate-2: rgba(255,255,255, .09);
 
+  /* ENS Brand Colors - Dark mode variants */
+  --ens-primary: 180 100% 43%;
+  --ens-primary-dark: 180 100% 35%;
+  --ens-secondary: 199 100% 30%;
+  --ens-accent: 14 100% 56%;
+  --ens-success: 174 100% 29%;
+
   --background: 224 8% 8%;
 
   --foreground: 210 20% 98%;
@@ -150,7 +164,7 @@
 
   --sidebar-border: 224 8% 18%;
 
-  --sidebar-primary: 221 83% 53%;
+  --sidebar-primary: 180 100% 43%;
 
   --sidebar-primary-foreground: 210 40% 98%;
 
@@ -158,7 +172,7 @@
 
   --sidebar-accent-foreground: 210 20% 98%;
 
-  --sidebar-ring: 221 83% 53%;
+  --sidebar-ring: 180 100% 43%;
 
   --popover: 224 7% 15%;
 
@@ -166,7 +180,7 @@
 
   --popover-border: 224 8% 20%;
 
-  --primary: 221 83% 53%;
+  --primary: 180 100% 43%;
 
   --primary-foreground: 210 40% 98%;
 
@@ -178,7 +192,7 @@
 
   --muted-foreground: 220 9% 65%;
 
-  --accent: 224 8% 19%;
+  --accent: 14 100% 56%;
 
   --accent-foreground: 210 20% 98%;
 
@@ -187,11 +201,11 @@
   --destructive-foreground: 210 40% 98%;
 
   --input: 224 8% 28%;
-  --ring: 221 83% 53%;
-  --chart-1: 221 83% 65%;
-  --chart-2: 262 83% 70%;
-  --chart-3: 291 64% 60%;
-  --chart-4: 173 58% 50%;
+  --ring: 180 100% 43%;
+  --chart-1: 180 100% 43%;
+  --chart-2: 199 100% 35%;
+  --chart-3: 14 100% 60%;
+  --chart-4: 174 100% 35%;
   --chart-5: 43 74% 60%;
 
   --shadow-2xs: 0px 1px 2px 0px hsl(220 13% 0% / 0.3);
@@ -240,9 +254,51 @@
     @apply transition-all duration-200 ease-in-out;
   }
   
-  /* Improve hover states for interactive elements */
+  /* Improve hover states for interactive elements with ENS brand feel */
   button:not(:disabled), a {
-    @apply hover:scale-[1.01] active:scale-[0.99];
+    @apply hover:scale-[1.02] active:scale-[0.98];
+  }
+
+  /* Glassmorphism utility class */
+  .glass {
+    @apply bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50;
+  }
+
+  /* ENS Brand gradient */
+  .gradient-ens {
+    background: linear-gradient(135deg, hsl(var(--ens-primary)) 0%, hsl(var(--ens-secondary)) 100%);
+  }
+
+  /* Shimmer effect for skeleton loaders */
+  @keyframes shimmer {
+    0% {
+      background-position: -1000px 0;
+    }
+    100% {
+      background-position: 1000px 0;
+    }
+  }
+
+  .animate-shimmer {
+    animation: shimmer 2s infinite;
+    background: linear-gradient(
+      to right,
+      hsl(var(--muted)) 4%,
+      hsl(var(--muted-foreground) / 0.1) 25%,
+      hsl(var(--muted)) 36%
+    );
+    background-size: 1000px 100%;
+  }
+
+  /* Ripple effect container */
+  .ripple-container {
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Smooth scroll */
+  html {
+    scroll-behavior: smooth;
   }
 }
 

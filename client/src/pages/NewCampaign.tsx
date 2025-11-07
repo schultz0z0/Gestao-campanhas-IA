@@ -218,10 +218,10 @@ export default function NewCampaign() {
                         <FormLabel>Modalidade</FormLabel>
                         <FormControl>
                           <Select
-                            value={field.value}
+                            value={field.value || undefined}
                             onValueChange={(value) => {
                               field.onChange(value);
-                              form.setValue("courseId", "", { shouldValidate: true });
+                              form.resetField("courseId");
                             }}
                           >
                             <SelectTrigger data-testid="select-modality">

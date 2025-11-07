@@ -20,6 +20,8 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useQueryClient } from "@tanstack/react-query";
+import { Link } from "wouter";
+import { authHelpers } from "@/lib/supabase";
 
 const menuItems = [
   {
@@ -62,6 +64,14 @@ export function AppSidebar({ activePath = "/analytics", onNavigate, userEmail = 
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      await authHelpers.signOut();
+    } catch (error) {
+      console.error("Erro ao fazer logout:", error);
+    }
+  };
+
   return (
     <Sidebar>
       <SidebarContent>
@@ -80,14 +90,13 @@ export function AppSidebar({ activePath = "/analytics", onNavigate, userEmail = 
                   <SidebarMenuButton
                     asChild
                     isActive={activePath === item.url}
-                    onClick={() => onNavigate?.(item.url)}
                     onMouseEnter={() => handlePrefetch(item.url)}
                     data-testid={`nav-${item.title.toLowerCase()}`}
                   >
-                    <a href={item.url}>
+                    <Link href={item.url}>
                       <item.icon />
                       <span>{item.title}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
@@ -101,10 +110,10 @@ export function AppSidebar({ activePath = "/analytics", onNavigate, userEmail = 
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild data-testid="nav-settings">
-                  <a href="/settings">
+                  <Link href="/settings">
                     <Settings />
                     <span>Configurações</span>
-                  </a>
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
@@ -129,7 +138,8 @@ export function AppSidebar({ activePath = "/analytics", onNavigate, userEmail = 
             variant="ghost"
             size="icon"
             data-testid="button-logout"
-            onClick={() => console.log("Logout clicked")}
+            onClick={handleLogout}
+            title="Sair"
           >
             <LogOut className="h-4 w-4" />
           </Button>

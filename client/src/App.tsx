@@ -9,10 +9,14 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import { useAuth } from "@/hooks/useAuth";
 import { lazy, Suspense, memo } from "react";
 import { onCLS, onINP, onLCP, onFCP, onTTFB, Metric } from 'web-vitals';
+import { motion, AnimatePresence } from 'framer-motion';
 
-const Login = lazy(() => import("@/pages/Login"));
-const Analytics = lazy(() => import("@/pages/Analytics"));
-const Campaigns = lazy(() => import("@/pages/Campaigns"));
+// Eager load critical pages for instant navigation
+import Analytics from "@/pages/Analytics";
+import Campaigns from "@/pages/Campaigns";
+import Login from "@/pages/Login";
+
+// Lazy load less frequently used pages
 const NewCampaign = lazy(() => import("@/pages/NewCampaign"));
 const CampaignDetails = lazy(() => import("@/pages/CampaignDetails"));
 const Offers = lazy(() => import("@/pages/Offers"));
@@ -33,29 +37,58 @@ if (typeof window !== 'undefined') {
 
 function PageLoader() {
   return (
-    <div className="flex items-center justify-center min-h-[400px]">
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="flex items-center justify-center min-h-[400px]"
+    >
       <div className="text-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-2"></div>
         <p className="text-sm text-muted-foreground">Carregando...</p>
       </div>
-    </div>
+    </motion.div>
   );
 }
 
+const pageVariants = {
+  initial: { opacity: 0, y: 10 },
+  animate: { opacity: 1, y: 0 },
+  exit: { opacity: 0, y: -10 }
+};
+
+const pageTransition = {
+  type: "tween",
+  ease: "easeInOut",
+  duration: 0.2
+};
+
 function Router() {
+  const [location] = useLocation();
+  
   return (
-    <Suspense fallback={<PageLoader />}>
-      <Switch>
-        <Route path="/" component={Analytics} />
-        <Route path="/analytics" component={Analytics} />
-        <Route path="/campaigns" component={Campaigns} />
-        <Route path="/campaigns/new" component={NewCampaign} />
-        <Route path="/campaigns/:id" component={CampaignDetails} />
-        <Route path="/offers" component={Offers} />
-        <Route path="/ai-assistant" component={AIAssistant} />
-        <Route component={NotFound} />
-      </Switch>
-    </Suspense>
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={location}
+        initial="initial"
+        animate="animate"
+        exit="exit"
+        variants={pageVariants}
+        transition={pageTransition}
+      >
+        <Suspense fallback={<PageLoader />}>
+          <Switch location={location}>
+            <Route path="/" component={Analytics} />
+            <Route path="/analytics" component={Analytics} />
+            <Route path="/campaigns" component={Campaigns} />
+            <Route path="/campaigns/new" component={NewCampaign} />
+            <Route path="/campaigns/:id" component={CampaignDetails} />
+            <Route path="/offers" component={Offers} />
+            <Route path="/ai-assistant" component={AIAssistant} />
+            <Route component={NotFound} />
+          </Switch>
+        </Suspense>
+      </motion.div>
+    </AnimatePresence>
   );
 }
 

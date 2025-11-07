@@ -5,6 +5,7 @@ import { CampaignCard } from "@/components/CampaignCard";
 import { EmptyState } from "@/components/EmptyState";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
   SelectContent,
@@ -13,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Megaphone, Plus, Search } from "lucide-react";
+import { motion } from "framer-motion";
 
 function calculateProgress(campaign: any): number {
   const now = new Date().getTime();
@@ -48,14 +50,18 @@ export default function Campaigns() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div className="space-y-2">
-            <div className="h-9 w-48 bg-muted animate-pulse rounded"></div>
-            <div className="h-5 w-64 bg-muted animate-pulse rounded"></div>
+            <Skeleton className="h-9 w-48" />
+            <Skeleton className="h-5 w-64" />
           </div>
-          <div className="h-10 w-36 bg-muted animate-pulse rounded"></div>
+          <Skeleton className="h-10 w-36" />
+        </div>
+        <div className="flex gap-4">
+          <Skeleton className="h-10 flex-1" />
+          <Skeleton className="h-10 w-48" />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="h-64 bg-muted animate-pulse rounded-lg"></div>
+            <Skeleton key={i} className="h-64 rounded-lg" />
           ))}
         </div>
       </div>
@@ -115,22 +121,28 @@ export default function Campaigns() {
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {filteredCampaigns.map((campaign) => (
-            <CampaignCard
+          {filteredCampaigns.map((campaign, index) => (
+            <motion.div
               key={campaign.id}
-              id={campaign.id}
-              title={campaign.name}
-              status={campaign.status}
-              startDate={new Date(campaign.start_date)}
-              endDate={new Date(campaign.end_date)}
-              leadsCount={campaign.leads?.length || 0}
-              actionsCount={campaign.marketing_actions?.length || 0}
-              progress={calculateProgress(campaign)}
-              lastUpdated={new Date(campaign.updated_at)}
-              onView={() => navigate(`/campaigns/${campaign.id}`)}
-              onEdit={() => navigate(`/campaigns/${campaign.id}`)}
-              onDelete={() => console.log("Delete campaign:", campaign.id)}
-            />
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.05 }}
+            >
+              <CampaignCard
+                id={campaign.id}
+                title={campaign.name}
+                status={campaign.status}
+                startDate={new Date(campaign.start_date)}
+                endDate={new Date(campaign.end_date)}
+                leadsCount={campaign.leads?.length || 0}
+                actionsCount={campaign.marketing_actions?.length || 0}
+                progress={calculateProgress(campaign)}
+                lastUpdated={new Date(campaign.updated_at)}
+                onView={() => navigate(`/campaigns/${campaign.id}`)}
+                onEdit={() => navigate(`/campaigns/${campaign.id}`)}
+                onDelete={() => console.log("Delete campaign:", campaign.id)}
+              />
+            </motion.div>
           ))}
         </div>
       )}

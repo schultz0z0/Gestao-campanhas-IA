@@ -3,9 +3,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Sparkles } from "lucide-react";
+import { Sparkles, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
+import { motion } from "framer-motion";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -36,16 +37,28 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      <div className="w-full max-w-md">
-        <div className="flex items-center justify-center gap-2 mb-8">
-          <Sparkles className="h-8 w-8 text-primary" />
-          <h1 className="text-3xl font-semibold">Marketing AI ENS</h1>
-        </div>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-primary/5 p-4">
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-md"
+      >
+        <motion.div 
+          className="flex items-center justify-center gap-2 mb-8"
+          initial={{ scale: 0.8 }}
+          animate={{ scale: 1 }}
+          transition={{ delay: 0.1, type: "spring", stiffness: 200 }}
+        >
+          <Sparkles className="h-8 w-8 text-primary animate-pulse" />
+          <h1 className="text-3xl font-semibold bg-gradient-to-r from-foreground to-primary bg-clip-text text-transparent">
+            Marketing AI ENS
+          </h1>
+        </motion.div>
 
-        <Card>
+        <Card className="border-2 shadow-xl">
           <CardHeader>
-            <CardTitle>Entrar</CardTitle>
+            <CardTitle className="text-2xl">Entrar</CardTitle>
             <CardDescription>
               Acesse sua conta para gerenciar suas campanhas de marketing
             </CardDescription>
@@ -61,7 +74,9 @@ export default function Login() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
+                  disabled={isLoading}
                   data-testid="input-email"
+                  className="h-11"
                 />
               </div>
               <div className="space-y-2">
@@ -73,21 +88,30 @@ export default function Login() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
+                  disabled={isLoading}
                   data-testid="input-password"
+                  className="h-11"
                 />
               </div>
               <Button
                 type="submit"
-                className="w-full"
+                className="w-full h-11 text-base font-medium shadow-lg hover:shadow-xl transition-shadow"
                 disabled={isLoading}
                 data-testid="button-login"
               >
-                {isLoading ? "Entrando..." : "Entrar"}
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Entrando...
+                  </>
+                ) : (
+                  "Entrar"
+                )}
               </Button>
             </form>
           </CardContent>
         </Card>
-      </div>
+      </motion.div>
     </div>
   );
 }

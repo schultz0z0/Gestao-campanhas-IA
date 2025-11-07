@@ -1,6 +1,8 @@
 import { StatsCard } from "@/components/StatsCard";
-import { Users, DollarSign, Target, TrendingUp, Sparkles, BarChart3 } from "lucide-react";
+import { GrowthProjectionChart } from "@/components/GrowthProjectionChart";
+import { Users, DollarSign, Target, TrendingUp, Sparkles, BarChart3, Download } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -12,6 +14,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
+import { exportToCSV, formatDataForExport } from "@/lib/exportUtils";
+import { useToast } from "@/hooks/use-toast";
 
 interface AnalyticsData {
   totalLeads: number;
@@ -36,6 +40,7 @@ interface AnalyticsData {
 export default function Analytics() {
   const [period, setPeriod] = useState("30");
   const [selectedCampaign, setSelectedCampaign] = useState<string>("");
+  const { toast } = useToast();
 
   const { data: analytics, isLoading } = useQuery<AnalyticsData>({
     queryKey: ["/api/analytics", { period, campaignId: selectedCampaign }],
@@ -66,6 +71,32 @@ export default function Analytics() {
     }).format(value);
   };
 
+  const handleExportAnalytics = () => {
+    if (!analytics?.campaigns || analytics.campaigns.length === 0) {
+      toast({
+        title: "Nenhum dado para exportar",
+        description: "Não há campanhas para exportar no momento.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const formattedData = formatDataForExport(analytics.campaigns);
+      exportToCSV(formattedData, 'analytics_campanhas');
+      toast({
+        title: "Exportação concluída!",
+        description: `${formattedData.length} campanhas exportadas com sucesso.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Erro ao exportar",
+        description: "Ocorreu um erro ao exportar os dados.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-4">
@@ -76,6 +107,15 @@ export default function Analytics() {
           </p>
         </div>
         <div className="flex gap-3">
+          <Button
+            variant="outline"
+            onClick={handleExportAnalytics}
+            data-testid="button-export-csv"
+            className="gap-2"
+          >
+            <Download className="h-4 w-4" />
+            Exportar CSV
+          </Button>
           <Select 
             value={selectedCampaign || "all"} 
             onValueChange={(value) => setSelectedCampaign(value === "all" ? "" : value)}
@@ -179,6 +219,12 @@ export default function Analytics() {
                   icon={DollarSign}
                 />
               </div>
+
+              <GrowthProjectionChart data={{
+                totalLeads: analytics?.totalLeads || 0,
+                inscritos: analytics?.inscritos || 0,
+                matriculados: analytics?.matriculados || 0,
+              }} />
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <Card>

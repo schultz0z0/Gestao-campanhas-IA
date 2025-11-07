@@ -13,8 +13,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Megaphone, Plus, Search } from "lucide-react";
+import { Megaphone, Plus, Search, Download } from "lucide-react";
 import { motion } from "framer-motion";
+import { exportToCSV, formatDataForExport } from "@/lib/exportUtils";
+import { useToast } from "@/hooks/use-toast";
 
 function calculateProgress(campaign: any): number {
   const now = new Date().getTime();
@@ -31,6 +33,7 @@ export default function Campaigns() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [, navigate] = useLocation();
+  const { toast } = useToast();
 
   const { data: campaigns = [], isLoading, isFetching } = useQuery<any[]>({
     queryKey: ["/api/campaigns"],
@@ -44,6 +47,32 @@ export default function Campaigns() {
       statusFilter === "all" || campaign.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
+
+  const handleExportCampaigns = () => {
+    if (filteredCampaigns.length === 0) {
+      toast({
+        title: "Nenhum dado para exportar",
+        description: "Não há campanhas que correspondam aos filtros atuais.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const formattedData = formatDataForExport(filteredCampaigns);
+      exportToCSV(formattedData, 'campanhas');
+      toast({
+        title: "Exportação concluída!",
+        description: `${formattedData.length} campanhas exportadas com sucesso.`,
+      });
+    } catch (error) {
+      toast({
+        title: "Erro ao exportar",
+        description: "Ocorreu um erro ao exportar os dados.",
+        variant: "destructive",
+      });
+    }
+  };
 
   if (isLoading && !campaigns.length) {
     return (
@@ -77,10 +106,21 @@ export default function Campaigns() {
             Gerencie suas campanhas de marketing
           </p>
         </div>
-        <Button onClick={() => navigate("/campaigns/new")} data-testid="button-new-campaign">
-          <Plus className="h-4 w-4 mr-2" />
-          Nova Campanha
-        </Button>
+        <div className="flex gap-3">
+          <Button 
+            variant="outline" 
+            onClick={handleExportCampaigns}
+            data-testid="button-export-campaigns"
+            className="gap-2"
+          >
+            <Download className="h-4 w-4" />
+            Exportar
+          </Button>
+          <Button onClick={() => navigate("/campaigns/new")} data-testid="button-new-campaign">
+            <Plus className="h-4 w-4 mr-2" />
+            Nova Campanha
+          </Button>
+        </div>
       </div>
 
       <div className="flex gap-4">

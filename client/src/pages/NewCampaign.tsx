@@ -62,8 +62,8 @@ export default function NewCampaign() {
     resolver: zodResolver(campaignSchema),
     defaultValues: {
       name: "",
-      modalityId: "",
-      courseId: "",
+      modalityId: undefined,
+      courseId: undefined,
       startDate: "",
       endDate: "",
       status: "draft",

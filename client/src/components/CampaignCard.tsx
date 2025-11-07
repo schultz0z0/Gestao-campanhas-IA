@@ -10,6 +10,7 @@ import { StatusBadge, CampaignStatus } from "./StatusBadge";
 import { MoreVertical, Users, Calendar, Target } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { motion } from "framer-motion";
 
 interface CampaignCardProps {
   id: string;
@@ -41,7 +42,7 @@ export function CampaignCard({
   onDelete,
 }: CampaignCardProps) {
   return (
-    <Card className="hover-elevate" data-testid={`campaign-card-${id}`}>
+    <Card className="hover-elevate gradient-overlay border-primary/10" data-testid={`campaign-card-${id}`}>
       <CardHeader className="flex flex-row items-center justify-between gap-4 space-y-0 pb-4">
         <div className="flex-1">
           <h3 className="text-lg font-semibold">{title}</h3>
@@ -79,30 +80,42 @@ export function CampaignCard({
 
       <CardContent className="space-y-4">
         <div className="grid grid-cols-3 gap-4">
-          <div className="flex flex-col">
+          <motion.div 
+            className="flex flex-col"
+            whileHover={{ scale: 1.05 }}
+            transition={{ type: "spring", stiffness: 400 }}
+          >
             <span className="text-xs text-muted-foreground mb-1">Leads</span>
             <div className="flex items-center gap-2">
-              <Users className="h-4 w-4 text-muted-foreground" />
+              <Users className="h-4 w-4 text-primary" />
               <span className="text-lg font-semibold" data-testid="text-leads">
                 {leadsCount}
               </span>
             </div>
-          </div>
-          <div className="flex flex-col">
+          </motion.div>
+          <motion.div 
+            className="flex flex-col"
+            whileHover={{ scale: 1.05 }}
+            transition={{ type: "spring", stiffness: 400 }}
+          >
             <span className="text-xs text-muted-foreground mb-1">Ações</span>
             <div className="flex items-center gap-2">
-              <Target className="h-4 w-4 text-muted-foreground" />
+              <Target className="h-4 w-4 text-primary" />
               <span className="text-lg font-semibold" data-testid="text-actions">
                 {actionsCount}
               </span>
             </div>
-          </div>
-          <div className="flex flex-col">
+          </motion.div>
+          <motion.div 
+            className="flex flex-col"
+            whileHover={{ scale: 1.05 }}
+            transition={{ type: "spring", stiffness: 400 }}
+          >
             <span className="text-xs text-muted-foreground mb-1">Progresso</span>
-            <span className="text-lg font-semibold" data-testid="text-progress">
+            <span className="text-lg font-semibold text-primary" data-testid="text-progress">
               {progress}%
             </span>
-          </div>
+          </motion.div>
         </div>
 
         <div className="flex items-center gap-2 text-sm text-muted-foreground">

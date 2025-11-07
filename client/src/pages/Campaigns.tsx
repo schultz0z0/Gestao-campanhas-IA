@@ -50,18 +50,18 @@ export default function Campaigns() {
       <div className="space-y-6">
         <div className="flex items-center justify-between">
           <div className="space-y-2">
-            <Skeleton className="h-9 w-48" />
-            <Skeleton className="h-5 w-64" />
+            <div className="skeleton-shimmer h-9 w-48" />
+            <div className="skeleton-shimmer h-5 w-64" />
           </div>
-          <Skeleton className="h-10 w-36" />
+          <div className="skeleton-shimmer h-10 w-36" />
         </div>
         <div className="flex gap-4">
-          <Skeleton className="h-10 flex-1" />
-          <Skeleton className="h-10 w-48" />
+          <div className="skeleton-shimmer h-10 flex-1" />
+          <div className="skeleton-shimmer h-10 w-48" />
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {[1, 2, 3, 4].map((i) => (
-            <Skeleton key={i} className="h-64 rounded-lg" />
+            <div key={i} className="skeleton-shimmer h-64 rounded-lg" />
           ))}
         </div>
       </div>

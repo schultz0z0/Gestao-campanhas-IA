@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { LucideIcon, TrendingUp, TrendingDown } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 
 interface StatsCardProps {
   title: string;
@@ -15,13 +16,28 @@ interface StatsCardProps {
 
 export function StatsCard({ title, value, icon: Icon, trend, description }: StatsCardProps) {
   return (
-    <Card data-testid={`stats-card-${title.toLowerCase().replace(/\s+/g, "-")}`}>
+    <Card 
+      className="hover-elevate gradient-overlay border-primary/10" 
+      data-testid={`stats-card-${title.toLowerCase().replace(/\s+/g, "-")}`}
+    >
       <CardHeader className="flex flex-row items-center justify-between gap-4 space-y-0 pb-2">
         <h3 className="text-sm font-medium text-muted-foreground">{title}</h3>
-        <Icon className="h-4 w-4 text-muted-foreground" />
+        <motion.div
+          whileHover={{ scale: 1.2, rotate: 5 }}
+          transition={{ type: "spring", stiffness: 400 }}
+        >
+          <Icon className="h-5 w-5 text-primary" />
+        </motion.div>
       </CardHeader>
       <CardContent>
-        <div className="text-3xl font-semibold">{value}</div>
+        <motion.div 
+          className="text-3xl font-semibold"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+        >
+          {value}
+        </motion.div>
         {trend && (
           <div className="flex items-center gap-1 mt-2">
             {trend.isPositive ? (

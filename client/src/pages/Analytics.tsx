@@ -125,7 +125,7 @@ export default function Analytics() {
           {isLoading ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {[...Array(8)].map((_, i) => (
-                <div key={i} className="h-32 bg-muted/50 rounded-xl animate-pulse" />
+                <div key={i} className="skeleton-shimmer h-32 rounded-xl" />
               ))}
             </div>
           ) : (

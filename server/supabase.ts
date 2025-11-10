@@ -171,7 +171,7 @@ export const db = {
 
   // Modalities
   async getModalities() {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("modalities")
       .select("*")
       .order("name");
@@ -181,7 +181,7 @@ export const db = {
   },
 
   async createModality(modality: any) {
-    const { data, error } = await supabase
+    const { data, error} = await supabaseAdmin
       .from("modalities")
       .insert(toSnakeCase(modality))
       .select()
@@ -192,7 +192,7 @@ export const db = {
   },
 
   async updateModality(id: string, updates: any) {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("modalities")
       .update(toSnakeCase(updates))
       .eq("id", id)
@@ -204,7 +204,7 @@ export const db = {
   },
 
   async deleteModality(id: string) {
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
       .from("modalities")
       .delete()
       .eq("id", id);
@@ -214,7 +214,7 @@ export const db = {
 
   // Courses
   async getCourses(modalityId?: string) {
-    let query = supabase
+    let query = supabaseAdmin
       .from("courses")
       .select(`
         *,
@@ -232,7 +232,7 @@ export const db = {
   },
 
   async createCourse(course: any) {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("courses")
       .insert(toSnakeCase(course))
       .select()
@@ -243,7 +243,7 @@ export const db = {
   },
 
   async updateCourse(id: string, updates: any) {
-    const { data, error} = await supabase
+    const { data, error} = await supabaseAdmin
       .from("courses")
       .update(toSnakeCase(updates))
       .eq("id", id)
@@ -255,7 +255,7 @@ export const db = {
   },
 
   async deleteCourse(id: string) {
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
       .from("courses")
       .delete()
       .eq("id", id);

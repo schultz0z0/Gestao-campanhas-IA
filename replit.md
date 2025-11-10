@@ -184,6 +184,7 @@ SUPABASE_SERVICE_ROLE_KEY - Chave de service role do Supabase (apenas backend)
 - ✅ SelectItem corrigido em todos os formulários (não usa value="")
 - ✅ Sanitização de dados opcionais antes de submeter
 - ✅ Validação de courseId ao trocar modalidade
+- ✅ Erro PGRST204 (PostgREST schema cache) resolvido via `NOTIFY pgrst, 'reload schema'`
 
 ### 🔄 Próximos Passos
 - Adicionar animações com framer-motion (cards, transições)
@@ -226,3 +227,4 @@ npm run dev
 - Nunca use `<SelectItem value="">` (use sentinela como "all" e converta)
 - Sempre aplique toSnakeCase antes de inserir/atualizar no Supabase
 - Sempre inclua variáveis de filtro no queryKey para refetch automático
+- Se encontrar erro PGRST204, execute `NOTIFY pgrst, 'reload schema'` via SQL para atualizar cache do PostgREST

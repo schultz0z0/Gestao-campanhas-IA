@@ -181,11 +181,11 @@ export const db = {
   },
 
   async createModality(modality: any) {
-    const { data, error} = await supabaseAdmin
-      .from("modalities")
-      .insert(toSnakeCase(modality))
-      .select()
-      .single();
+    const { data, error } = await supabaseAdmin
+      .rpc("create_modality_with_description", {
+        p_name: modality.name,
+        p_description: modality.description || null
+      });
 
     if (error) throw error;
     return data;
@@ -233,10 +233,15 @@ export const db = {
 
   async createCourse(course: any) {
     const { data, error } = await supabaseAdmin
-      .from("courses")
-      .insert(toSnakeCase(course))
-      .select()
-      .single();
+      .rpc("create_course_with_metadata", {
+        p_name: course.name,
+        p_description: course.description,
+        p_modality_id: course.modalityId,
+        p_duration_hours: course.durationHours || null,
+        p_target_audience: course.targetAudience || null,
+        p_prerequisites: course.prerequisites || null,
+        p_learning_outcomes: course.learningOutcomes || null
+      });
 
     if (error) throw error;
     return data;
